@@ -1,68 +1,42 @@
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import mongoose from 'mongoose';
+import { Router, Request, Response } from 'express';
+import User from '../models/User.js';
 
-// Import routers and middleware with explicit extensions for ESM/node16+ compatibility
-import { errorHandler } from './middleware/errorHandler.js';
-import { authRouter } from './routes/auth.js';
+const router = Router();
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(helmet({
-  crossOriginResourcePolicy: false,
-}));
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Authorization', 'Content-Type'],
-}));
-app.use(express.json());
-
-const env = process.env.NODE_ENV || 'development';
-const uri = process.env.MONGO_DB_URI || 'mongodb://127.0.0.1:27017/recommendation_app';
-
-if (!uri) {
-  throw new Error('Database not connected');
+async function getUserProgress(userId: string): Promise<number> {
+  const user = await User.findOne({ userId });
+  return user ? user.progress : 0;
 }
 
-mongoose.connect(uri, {})
-  .then(() => console.log('connected to MongoDB'))
-  .catch((err) => console.log('MongoDB connection Error', err));
+function generateRecommendations(progress: number): string[] {
+  if (progress < 50) {
+    return ['Intro to TypeScript', 'Basic JavaScript Concepts'];
+  } else {
+    return ['Advanced Node.js', 'AI Chatbot Design'];
+  }
+}
 
-// Graceful shutdown setup
-function gracefulShutdown() {
-  console.log('Received kill signal, closing gracefully');
-  server.close(async () => {
-    console.log('closing connections');
-    await mongoose.connection.close();
-    process.exit(0);
+router.post('/proactive-recommendation', (req: Request, res: Response) => {
+  const { userId } = req.body;
+  if (!userId) {
+    res.status(400).json({ error: 'userId is required' });
+    return;
+  }
+
+  getUserProgress(userId).then(progress => {
+    const recommendations = generateRecommendations(progress);
+
+    let message: string;
+    if (progress < 50) {
+      message = `Hi! I noticed you're just getting started. Here are some courses to help you progress: ${recommendations.join(', ')}`;
+    } else {
+      message = `Great job on your progress! Based on your learning so far, you might enjoy: ${recommendations.join(', ')}`;
+    }
+
+    res.json({ message, recommendations });
+  }).catch(error => {
+    res.status(500).json({ error: 'Server error' });
   });
-
-  setTimeout(() => {
-    console.error('closing connections forcefully');
-    process.exit(1);
-  }, 10000);
-}
-
-process.on('SIGTERM', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
-
-// Routes
-app.get('/', (req: Request, res: Response) => {
-  res.status(200).json({ message: "home route" });
-});
-app.use('/api', authRouter);
-
-// Error handler (should be after all other routes)
-app.use(errorHandler);
-
-// 404 handler (should be last)
-app.use((req: Request, res: Response) => {
-  res.status(404).json({ error: '404 Route not found' });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Server is running over port: ${PORT} in ${env}`);
-});
+export default router;
