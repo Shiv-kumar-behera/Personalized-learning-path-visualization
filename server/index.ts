@@ -5,6 +5,10 @@ import { errorHandler } from './middleware/errorHandler.js'
 import mongoose from 'mongoose';
 import { authRouter } from './routes/auth.js'
 
+import proactiveRecommendationRouter from './routes/recommendation';
+app.use('/api', proactiveRecommendationRouter);
+
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(helmet({
