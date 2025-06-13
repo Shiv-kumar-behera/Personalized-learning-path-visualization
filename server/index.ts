@@ -9,7 +9,7 @@ import proactiveRecommendationRouter from './routes/recommendation';
 app.use('/api', proactiveRecommendationRouter);
 import mongoose from 'mongoose';
 
-// mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/yourdb', {
+// mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:3000/yourdb', {
 //     useNewUrlParser: true,
 //     useUnifiedTopology: true,
 // });
