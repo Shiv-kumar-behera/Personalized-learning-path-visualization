@@ -7,6 +7,12 @@ import { authRouter } from './routes/auth.js'
 
 import proactiveRecommendationRouter from './routes/recommendation';
 app.use('/api', proactiveRecommendationRouter);
+import mongoose from 'mongoose';
+
+// mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/yourdb', {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+// });
 
 
 const app = express();
