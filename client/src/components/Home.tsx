@@ -1,4 +1,5 @@
 import { Globe, Lock, ShieldCheck } from 'lucide-react';
+import NodeGraph from './NodeGraph';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
@@ -14,6 +15,7 @@ const Home = () => {
           <h2 className="mb-6 text-5xl font-bold text-emerald-900">
             TODO
           </h2>
+
           <div className="flex space-x-4">
             <Link to='/login'>
               {/* <button className="py-3 px-6 text-white bg-emerald-600 rounded-full transition hover:bg-emerald-700"> */}
@@ -23,6 +25,10 @@ const Home = () => {
           </div>
         </div>
       </main>
+      <div className="p-4">
+        <h1 className="text-2xl font-bold mb-4">Learning Path</h1>
+        <NodeGraph />
+      </div>
 
       <footer className="py-8 px-6 mt-16 text-center">
         <p className="text-emerald-800">
